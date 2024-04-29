@@ -1,0 +1,3 @@
+git init -> inisiasi git
+mkdir -> buat folder
+cd -> pindah dir
