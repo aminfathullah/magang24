@@ -1,3 +1,84 @@
 git init -> inisiasi git
 mkdir -> buat folder
 cd -> pindah dir
+
+dplyr library data manipulation
+tidyr -> rapih2
+
+
+
+hadoop -> env big data, hfs
+spark -> hadoop,  tapi process di memory
+
+
+library() -> untuk load package
+install.packages() -> install package
+
+mutate() -> menambah kolom baru
+transmute() -> buat kolom baru, mengahpus kolom lain
+summarise() -> aggregasi
+group_by() -> grouping
+join:
+    inner_join()
+    left_join()
+    right_join()
+    full_jon()
+
+
+%>% -> pipe
+data.frame -> table di R
+tibble -> table, tapi lebih console friendly
+as_tibble -> CONVERT KE tibble 
+
+paste()
+paste0() -> concat
+
+
+c() -> tipe sama dan primitive
+
+f1 -> b yuka help
+
+View() -> lihat tabel lewat GUI
+
+
+arrow -> 
+
+
+[nama library]::[functiomn] -> panggil function tanpa load package
+
+
+hfs -> file sistem untuk hadoop 
+
+arrow:
+    dataset
+    table 
+
+
+colect() -> angkat ke memory
+lazy processing
+
+filter() -> untuk filter
+
+gsub() -> replace char di R
+
+regular expression
+
+str -> cek tipe data sekaligus
+
+looping
+    for
+    apply:
+        lapply
+        mapply
+        sapply
+
+        mcapply
+select() -> milih variabel
+
+list() -> tipe bisa beda atau complex
+
+skala data:
+    nominal
+    ordinal
+    interval
+    ratio
