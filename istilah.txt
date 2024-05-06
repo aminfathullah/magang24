@@ -82,3 +82,26 @@ skala data:
     ordinal
     interval
     ratio
+
+1. semua tabel tersimpan di db
+2. tipe data sudah sesauai
+3. kode wilayah seragam
+
+
+ukuran pemusatan data:
+    mean
+    median
+    modus
+ukuran persebaran:
+    varaians
+    standar error/deviasi
+coefiisei varian
+
+
+normalize data:
+    0 - 1
+    distribusi normal
+    distribusi lainnya
+
+log 
+ln

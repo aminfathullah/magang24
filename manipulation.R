@@ -22,7 +22,7 @@ iris %>%
 data1 <- arrow::open_dataset('../magang24/fara/Hasil Parquet Multithreading Fara/')
 
 data1 %>% 
-  filter(SATUAN != '') %>% 
+  filter(SATUAN != '') %>% head(100) %>% collect() %>% View()
   mutate(`HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = T)) %>% 
   mutate(`HARGA KEMARIN` = ifelse(`HARGA KEMARIN`=='-',NA,`HARGA KEMARIN`)) %>% 
   mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
@@ -47,3 +47,49 @@ for (nama_var in colnames(iris %>% select(-Species))) {
 apply(iris %>% select(-Species), 2, function(x){
   mean(x)
 })
+
+
+
+data1 %>% 
+  filter(SATUAN != '') %>% 
+  mutate(`HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = T)) %>% 
+  mutate(`HARGA KEMARIN` = ifelse(`HARGA KEMARIN`=='-',NA,`HARGA KEMARIN`)) %>% 
+  mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
+  head(100) %>%
+  collect() %>% 
+  mutate(harga_imput_nol = ifelse(is.na(`HARGA KEMARIN`), 0, `HARGA KEMARIN`),
+         harga_input_mean = ifelse(is.na(`HARGA KEMARIN`), mean(`HARGA KEMARIN`, na.rm = T), `HARGA KEMARIN`)) %>% 
+  View()
+
+
+data1 %>% 
+  filter(SATUAN != '') %>% 
+  mutate(`HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = T)) %>% 
+  mutate(`HARGA KEMARIN` = ifelse(`HARGA KEMARIN`=='-',NA,`HARGA KEMARIN`)) %>% 
+  mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
+  # head(100) %>%
+  group_by(`NAMA BAHAN POKOK`, SATUAN) %>% 
+  summarise(jumalh_baris = n()) %>% 
+  collect()
+
+data1 %>% 
+  filter(SATUAN != '') %>% 
+  mutate(`HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = T)) %>% 
+  mutate(`HARGA KEMARIN` = ifelse(`HARGA KEMARIN`=='-',NA,`HARGA KEMARIN`)) %>% 
+  mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
+  mutate(label_satuan = ifelse(SATUAN=='kg', 'Kilo', ifelse(SATUAN=='l', 'Liter', SATUAN))) %>% 
+  head() %>% 
+  collect()
+
+
+data1 %>% 
+  filter(SATUAN != '') %>% 
+  mutate(`HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = T)) %>% 
+  mutate(`HARGA KEMARIN` = ifelse(`HARGA KEMARIN`=='-',NA,`HARGA KEMARIN`)) %>% 
+  mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
+  mutate(label_satuan = ifelse(SATUAN=='kg', 'Kilo', ifelse(SATUAN=='l', 'Liter', SATUAN))) %>% 
+  head() %>% 
+  collect() %>% 
+  mutate(harag_normalize = (`HARGA KEMARIN`- min(`HARGA KEMARIN`))/(max(`HARGA KEMARIN`)-min(`HARGA KEMARIN`))) %>% 
+  mutate(harga_log = log(`HARGA KEMARIN`))%>% View()
+  
