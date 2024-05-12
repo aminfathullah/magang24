@@ -13,12 +13,8 @@ processed_data <- data1 %>%
          `HARGA SEKARANG` = as.integer(`HARGA SEKARANG`)) %>%
   collect() %>%
   select(-`PERUBAHAN (Rp)`, -NO) %>%
-  mutate(`NAMA BAHAN POKOK` = gsub('-', '', `NAMA BAHAN POKOK`, fixed = TRUE))
-
-processed_data <- processed_data %>%
-  mutate(`PERUBAHAN (%)` = gsub('%', '', `PERUBAHAN (%)`, fixed = TRUE))
-
-processed_data <- processed_data %>%
+  mutate(`NAMA BAHAN POKOK` = gsub('-', '', `NAMA BAHAN POKOK`, fixed = TRUE)) %>%
+  mutate(`PERUBAHAN (%)` = gsub('%', '', `PERUBAHAN (%)`, fixed = TRUE)) %>%
   mutate(ID_KABKOT = case_when(
     `Kabupaten/Kota` == "Bangkalan" ~ 3526,
     `Kabupaten/Kota` == "Banyuwangi" ~ 3510,
@@ -31,18 +27,13 @@ processed_data <- processed_data %>%
     `Kabupaten/Kota` == "Kediri" ~ 3506,
     `Kabupaten/Kota` == "Lamongan" ~ 3524,
     TRUE ~ NA_integer_
-  ))
-
-processed_data <- processed_data %>%
-  mutate(PERUBAHAN_RP = gsub('.', '', PERUBAHAN_RP, fixed = TRUE))
-
-processed_data <- processed_data %>%
-  mutate(`PERUBAHAN (%)` = ifelse(`PERUBAHAN (%)` == '-', NA, `PERUBAHAN (%)`))
-
-processed_data <- processed_data %>%
-  select(ID_KABKOT, `Kabupaten/Kota`, Tanggal, `NAMA BAHAN POKOK`, SATUAN, `HARGA KEMARIN`, `HARGA SEKARANG`, PERUBAHAN_RP, everything())
-
-processed_data <- processed_data %>%
-  rename(`PERUBAHAN (Rp)` = PERUBAHAN_RP)
+  )) %>%
+  mutate(PERUBAHAN_RP = gsub('.', '', PERUBAHAN_RP, fixed = TRUE)) %>%
+  mutate(`PERUBAHAN (%)` = ifelse(`PERUBAHAN (%)` == '-', NA, `PERUBAHAN (%)`)) %>%
+  select(ID_KABKOT, `Kabupaten/Kota`, Tanggal, `NAMA BAHAN POKOK`, SATUAN, `HARGA KEMARIN`, `HARGA SEKARANG`, PERUBAHAN_RP, everything()) %>%
+  rename(`PERUBAHAN (Rp)` = PERUBAHAN_RP) %>%
+  mutate(NO = row_number()) %>%
+  select(NO, everything()) 
 
 head(processed_data)
+View(processed_data)
