@@ -1,5 +1,17 @@
 library(dplyr)
+
 setwd('C:/Users/ASUS/magang24/')
+
+
+library(odbc)
+library(DBI)
+
+con <- DBI::dbConnect(odbc::odbc(),
+                      Driver = "SQL Server",
+                      Server = "localhost\\SQLEXPRESS",
+                      Database = "harga_fara",
+                      Trusted_connection = "True")
+dbListTables(con)
 
 data1 <- arrow::open_dataset('fara/Hasil Parquet Multithreading Fara/')
 
@@ -36,5 +48,7 @@ data_harga <- data1 %>%
   mutate(NO = row_number()) %>%
   select(NO, everything()) %>% 
   write_parquet("harga.parquet")
+  dbWriteTable(con, "data_harga", data_harga, overwrite = TRUE)
+  arrow::write_parquet(data_harga, "harga.parquet")
 
 View(data_harga)
