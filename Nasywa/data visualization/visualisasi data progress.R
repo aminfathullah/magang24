@@ -57,6 +57,7 @@ kode_wilayah <- data_harga %>%
     `Kabupaten/Kota` == "Tulungagung" ~ 3504,
     TRUE ~ NA_integer_
   )) %>%
+  mutate(ID_WILAYAH = as.integer(ID_WILAYAH)) %>%
   mutate(NO = row_number()) %>%
   select(NO, ID_WILAYAH, everything()) %>%
   mutate_all(~replace_na(., 0))
