@@ -1,0 +1,74 @@
+library(dplyr)
+library(arrow)
+library(odbc)
+library(DBI)
+library(ggplot2)
+library(tidyr)
+
+con <- DBI::dbConnect(odbc::odbc(),
+                      Driver = "SQL Server",
+                      Server = "localhost\\SQLEXPRESS",
+                      Database = "DB_HARGA_PASAR",
+                      Trusted_connection = "True")
+dbListTables(con)
+
+data_harga <- arrow::open_dataset('C:/Users/User/magang24/Nasywa/crawling harga update/')
+
+kode_wilayah <- data_harga %>%
+  filter(SATUAN != '') %>%
+  mutate(`HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = TRUE)) %>%
+  mutate(`HARGA KEMARIN` = ifelse(`HARGA KEMARIN` == '-', NA, `HARGA KEMARIN`)) %>%
+  mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
+  collect() %>% 
+  
+  mutate(`HARGA SEKARANG` = gsub('.', '', `HARGA SEKARANG`, fixed = TRUE)) %>%
+  mutate(`HARGA SEKARANG` = ifelse(`HARGA SEKARANG` == '-', NA, `HARGA SEKARANG`)) %>%
+  mutate(`HARGA SEKARANG` = as.integer(`HARGA SEKARANG`)) %>%
+  collect() %>% 
+  
+  mutate(`NAMA BAHAN POKOK` = gsub('-', '', `NAMA BAHAN POKOK`, fixed = TRUE)) %>%
+  mutate(`NAMA BAHAN POKOK` = as.character(`NAMA BAHAN POKOK`)) %>%
+  collect() %>% 
+  
+  mutate(`PERUBAHAN (%)` = gsub('%', '', `PERUBAHAN (%)`, fixed = TRUE)) %>%
+  mutate(`PERUBAHAN (%)` = gsub(',', '.', `PERUBAHAN (%)`, fixed = TRUE)) %>%
+  mutate(`PERUBAHAN (%)` = ifelse(`PERUBAHAN (%)` == '-', NA, `PERUBAHAN (%)`)) %>%
+  mutate(`PERUBAHAN (%)` = as.double(`PERUBAHAN (%)`)) %>%
+  mutate(`PERUBAHAN (%)` = `PERUBAHAN (%)` / 100) %>%
+  collect() %>%
+  
+  mutate(`PERUBAHAN (Rp)` = as.integer(`PERUBAHAN (Rp)`)) %>%
+  collect() %>% 
+  
+  mutate(Tanggal = as.Date(Tanggal, format = "%Y-%m-%d")) %>%
+  collect() %>% 
+  
+  
+  mutate(ID_WILAYAH = case_when(
+    `Kabupaten/Kota` == "Pasuruan" ~ 3514,
+    `Kabupaten/Kota` == "Ponorogo" ~ 3502,
+    `Kabupaten/Kota` == "Probolinggo" ~ 3513,
+    `Kabupaten/Kota` == "Sampang" ~ 3527,
+    `Kabupaten/Kota` == "Sidoarjo" ~ 3515,
+    `Kabupaten/Kota` == "Situbondo" ~ 3512,
+    `Kabupaten/Kota` == "Sumenep" ~ 3529,
+    `Kabupaten/Kota` == "Trenggalek" ~ 3503,
+    `Kabupaten/Kota` == "Tuban" ~ 3523,
+    `Kabupaten/Kota` == "Tulungagung" ~ 3504,
+    TRUE ~ NA_integer_
+  )) %>%
+  mutate(ID_WILAYAH = as.integer(ID_WILAYAH)) %>%
+  mutate(NO = row_number()) %>%
+  select(NO, ID_WILAYAH, everything()) %>%
+  mutate_all(~replace_na(., 0))
+
+dbWriteTable(con, "kode_wilayah", kode_wilayah, overwrite = TRUE)
+arrow::write_parquet(kode_wilayah, "dataharga.parquet")
+View(kode_wilayah)
+collect(kode_wilayah)
+
+c <- ggplot(kode_wilayah, aes(x = `HARGA SEKARANG`)) + 
+  geom_histogram(binwidth = 5000, alpha = 0.7, fill = "blue", color = "red", linetype = "solid", size = 0.5) +
+  labs(title = "Perbandingan Harga Pasar", x = "Harga Sekarang", y = "Harga Kemarin") +
+  theme_minimal()
+print(c)
