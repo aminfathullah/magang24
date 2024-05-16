@@ -2,6 +2,7 @@ library(dplyr)
 library(arrow)
 library(odbc)
 library(DBI)
+library(ggplot2)
 library(tidyr)
 
 con <- DBI::dbConnect(odbc::odbc(),
@@ -42,6 +43,7 @@ kode_wilayah <- data_harga %>%
   mutate(Tanggal = as.Date(Tanggal, format = "%Y-%m-%d")) %>%
   collect() %>% 
   
+  
   mutate(ID_WILAYAH = case_when(
     `Kabupaten/Kota` == "Pasuruan" ~ 3514,
     `Kabupaten/Kota` == "Ponorogo" ~ 3502,
@@ -62,10 +64,10 @@ kode_wilayah <- data_harga %>%
 dbWriteTable(con, "kode_wilayah", kode_wilayah, overwrite = TRUE)
 arrow::write_parquet(kode_wilayah, "dataharga.parquet")
 View(kode_wilayah)
+collect(kode_wilayah)
 
-library(ggplot2)
 c <- ggplot(kode_wilayah, aes(x = `HARGA SEKARANG`)) + 
-  geom_histogram(binwidth = 5000, alpha = 0.7, fill = "red", color = "black", linetype = "solid", size = 0.5) +
+  geom_histogram(binwidth = 5000, alpha = 0.7, fill = "blue", color = "red", linetype = "solid", size = 0.5) +
   labs(title = "Perbandingan Harga Pasar", x = "Harga Sekarang", y = "Harga Kemarin") +
   theme_minimal()
 print(c)
