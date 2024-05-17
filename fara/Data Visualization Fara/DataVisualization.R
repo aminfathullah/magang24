@@ -18,6 +18,7 @@ data_harga <- data_harga %>%
     `HARGA SEKARANG` = ifelse(is.na(`HARGA SEKARANG`), 0, `HARGA SEKARANG`),
     `HARGA SEKARANG` = ifelse(`HARGA SEKARANG` == "-", 0, `HARGA SEKARANG`),
     `HARGA SEKARANG` = as.integer(`HARGA SEKARANG`),
+    `PERUBAHAN (Rp)` = gsub('.', '', `PERUBAHAN (Rp)`, fixed = TRUE),
     `PERUBAHAN (Rp)` = ifelse(is.na(`PERUBAHAN (Rp)`), 0, `PERUBAHAN (Rp)`),
     `PERUBAHAN (Rp)` = ifelse(`PERUBAHAN (Rp)` == "-", 0, `PERUBAHAN (Rp)`),
     `PERUBAHAN (Rp)` = as.integer(`PERUBAHAN (Rp)`),
@@ -68,12 +69,12 @@ print(Histogram_Perbandingan_Harga)
 
 # geom histogram harga sekarang
 Histogram_Harga_Sekarang <- ggplot(data_harga, aes(x = `HARGA SEKARANG`,  fill = ..count..)) + 
-  geom_histogram(binwidth = 30, alpha = 0.7, color = "purple", size = 0.5, 
+  geom_histogram(binwidth = 8000, alpha = 0.7, color = "purple", size = 0.5, 
                  position = "identity", show.legend = FALSE) +
-  scale_fill_gradient(low = "blue", high = "red") +
+  scale_fill_gradientn(colors = brewer.pal(9, "YlGnBu")) +
   labs(title = "Distribusi Harga Sekarang", x = "Harga Sekarang", y = "Frekuensi") +
-  theme_minimal() +
-  theme(panel.grid.major = element_line(color = "black", linetype = "dotted"), 
+  theme_minimal() 
+  theme(panel.grid.major = element_line(color = "black", linetype = "dotted"),
         panel.grid.minor = element_line(color = "gray", linetype = "dashed"),
         panel.border = element_blank(),
         axis.line = element_line(color = "black"))
@@ -126,6 +127,28 @@ c2 <- c2 + labs(title = "Dot Plot Harga Sekarang", x = "Harga Sekarang", y = "Co
         panel.border = element_blank(),
         axis.line = element_line(color = "black"))
 print(c2)
+
+# geom bar
+ggplot(data_harga, aes(x = `NAMA BAHAN POKOK`, y = `HARGA SEKARANG`)) + 
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Harga Sekarang per Nama Bahan Pokok", x = "Nama Bahan Pokok", y = "Harga Sekarang") +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid.major = element_line(color = "gray", linetype = "dotted"),
+    panel.grid.minor = element_line(color = "lightgray", linetype = "dashed"),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
+
+
+
+
+
+
+
 
 
 

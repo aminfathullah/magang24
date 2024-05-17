@@ -20,6 +20,7 @@ data_harga <- data_harga %>%
     `HARGA SEKARANG` = as.integer(`HARGA SEKARANG`),
     `PERUBAHAN (Rp)` = ifelse(is.na(`PERUBAHAN (Rp)`), 0, `PERUBAHAN (Rp)`),
     `PERUBAHAN (Rp)` = ifelse(`PERUBAHAN (Rp)` == "-", 0, `PERUBAHAN (Rp)`),
+    `PERUBAHAN (Rp)` = gsub('.', '', `PERUBAHAN (Rp)`, fixed = TRUE),
     `PERUBAHAN (Rp)` = as.integer(`PERUBAHAN (Rp)`),
     `PERUBAHAN (%)` = gsub('%', '', `PERUBAHAN (%)`, fixed = TRUE),
     `PERUBAHAN (%)` = gsub(',', '.', `PERUBAHAN (%)`, fixed = TRUE),
