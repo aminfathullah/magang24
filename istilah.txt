@@ -105,3 +105,38 @@ normalize data:
 
 log 
 ln
+
+posisi:
+    desil -> 10
+    percentil -> 100
+    quantil -> 4
+        Q1
+        Q2 -> median
+        Q3
+
+missing value:
+    deletion
+    imputation
+
+! -> negasi di R
+
+
+histogram -> distribusi data numeric
+grafik batang -> distribusi/perbandingan data kategorik
+
+boxplot -> deteksi outlier
+scatter plot -> hubungan 2 variabel 
+map -> untuk perbaindingan wilayah
+
+
+task: 
+    1. summary statistic
+    2. nnyoba semua tipe chart 
+    3. membacanya 
+
+
+korelasi -> hubungan antar varible
+
+
+discrete data -> kategorik
+kontninues data -> numeric/bisa desimal
