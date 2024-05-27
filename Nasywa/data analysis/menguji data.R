@@ -3,7 +3,7 @@ library(arrow)
 library(tidyr)
 library(forecast)
 library(partykit)
-library (ggplot2)
+library(ggplot2)
 
 data_harga <- arrow::open_dataset('C:/Users/User/magang24/Nasywa/crawling harga update/')
 
@@ -52,6 +52,22 @@ kode_wilayah <- data_harga %>%
   mutate_all(~replace_na(., 0)) %>%
   collect(kode_wilayah)
 
+View(kode_wilayah)
+
+kode_wilayah$Tanggal <- as.Date(kode_wilayah$Tanggal)
+
+kode_wilayah <- kode_wilayah %>%
+  filter(Tanggal >= "2023-04-24" & Tanggal <= "2023-05-24" & `NAMA BAHAN POKOK` == " Beras Premium")
+
+rata_rata_harga_sekarang <- mean(kode_wilayah$`HARGA SEKARANG`, na.rm = TRUE)
+
+kode_wilayah <- kode_wilayah %>%
+  mutate(Kategori = ifelse(`HARGA SEKARANG` < rata_rata_harga_sekarang, "Beras Murah", "Beras Mahal")) %>%
+  mutate(Kategori = as.factor(Kategori))
+
+dtree <- ctree(Kategori ~ `HARGA KEMARIN`, data = kode_wilayah)
+plot(dtree)
+
 t_test_result <- t.test(kode_wilayah$`HARGA KEMARIN`, kode_wilayah$`HARGA SEKARANG`)
 print("Hasil uji t-test antara HARGA KEMARIN dan HARGA SEKARANG:")
 print(t_test_result)
@@ -60,16 +76,18 @@ correlation_result <- cor(kode_wilayah$`HARGA KEMARIN`, kode_wilayah$`HARGA SEKA
 print("Koefisien korelasi antara HARGA KEMARIN dan HARGA SEKARANG:")
 print(correlation_result)
 
-ari <- arima(kode_wilayah$`HARGA KEMARIN`)
+ari <- auto.arima(kode_wilayah$`HARGA KEMARIN`)
 print("Model ARIMA untuk HARGA KEMARIN:")
 print(ari)
 
-forecast_result <- predict(ari, n.ahead = 10)
+forecast_result <- forecast(ari, h = 10)
 print("Forecasting HARGA KEMARIN untuk 10 periode ke depan:")
 print(forecast_result)
+print(as.data.frame(forecast_result))
 
-training <- kode_wilayah[1:120,]
-testing <- kode_wilayah[121:140,]
+set.seed(123) 
+training <- kode_wilayah[1:120, ]
+testing <- kode_wilayah[121:140, ]
 
 regresi1 <- lm(`HARGA SEKARANG` ~ `HARGA KEMARIN` + `PERUBAHAN (Rp)` + `PERUBAHAN (%)`, data = training)
 summary(regresi1)
@@ -77,8 +95,3 @@ summary(regresi1)
 prediksi_regresi <- predict(regresi1, testing)
 print("Hasil prediksi menggunakan model regresi linear:")
 print(prediksi_regresi)
-
-dtree <- ctree(`HARGA SEKARANG` ~ `HARGA KEMARIN` + `PERUBAHAN (Rp)` + `PERUBAHAN (%)`, data = kode_wilayah)
-plot(dtree)
-
-View(kode_wilayah)
