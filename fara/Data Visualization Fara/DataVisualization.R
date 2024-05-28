@@ -130,7 +130,7 @@ print(c2)
 
 # geom bar
 ggplot(data_harga, aes(x = `NAMA BAHAN POKOK`, y = `HARGA SEKARANG`)) + 
-  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  geom_bar(stat = "identity", fill = "skyblue", color = "pink") +
   labs(title = "Harga Sekarang per Nama Bahan Pokok", x = "Nama Bahan Pokok", y = "Harga Sekarang") +
   scale_y_continuous(labels = scales::comma) +
   theme_minimal() +
@@ -139,12 +139,15 @@ ggplot(data_harga, aes(x = `NAMA BAHAN POKOK`, y = `HARGA SEKARANG`)) +
     panel.grid.major = element_line(color = "gray", linetype = "dotted"),
     panel.grid.minor = element_line(color = "lightgray", linetype = "dashed"),
     panel.border = element_blank(),
-    axis.line = element_line(color = "black")
+    axis.line = element_line(color = "skyblue")
   )
 
+# geom count
+g <- ggplot(data = data_harga, aes(x = 'HARGA SEKARANG', y = 'HARGA KEMARIN')) +
+  geom_count(alpha = 0.6, color = "blue", fill = "lightblue", shape = 21, size = 5, stroke = 1)
+print(g)
 
-
-
+# geom count
 
 
 
