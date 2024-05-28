@@ -105,3 +105,84 @@ normalize data:
 
 log 
 ln
+
+posisi:
+    desil -> 10
+    percentil -> 100
+    quantil -> 4
+        Q1
+        Q2 -> median
+        Q3
+
+missing value:
+    deletion
+    imputation
+
+! -> negasi di R
+
+
+histogram -> distribusi data numeric
+grafik batang -> distribusi/perbandingan data kategorik
+
+boxplot -> deteksi outlier
+scatter plot -> hubungan 2 variabel 
+map -> untuk perbaindingan wilayah
+
+
+task: 
+    1. summary statistic
+    2. nnyoba semua tipe chart 
+    3. membacanya 
+
+
+korelasi -> hubungan antar varible
+
+
+discrete data -> kategorik
+kontninues data -> numeric/bisa desimal
+
+Analysis statistik
+	Uji-t -> uji kesamaan rata2 2 data -> anova (banyak)
+	korelasi
+	arima
+Machine learning
+	regresi:
+		linier
+		non linier 
+		uni variate
+		multi variate
+	deccision tree
+
+
+statistik -> dari survey
+paramater -> dari sensus
+
+p-value -> 
+alpha -> tingkat kepercayaan
+	5%
+	1%
+p-value -> 
+h0 -> hipotesis yg mau kita uji
+h1 -> hipotesis alternative 
+	!=   -> alpha dibagi 2
+	<
+	>
+
+p-value kurang -> tolak h0
+lainnya -> tidak cukup sampel untuk menolak h0
+
+korelasi != sebab akibat
+
+
+konitnu -> numeric (float) -> decimal -> skala ratio
+diskrit -> kategorik -> kelas
+
+training -> membentuk model
+testing -> menguji model
+
+
+overfitting -> model terlalu fit dengan data training -> droping, pisah training-testing 
+
+k-fold validation
+
+1. Mlakukan uji-t 
