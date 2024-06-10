@@ -57,7 +57,7 @@ data1 %>%
   mutate(`HARGA KEMARIN` = as.integer(`HARGA KEMARIN`)) %>%
   head(100) %>%
   collect() %>% 
-  mutate(harga_imput_nol = ifelse(is.na(`HARGA KEMARIN`), 0, `HARGA KEMARIN`),
+  mutate(harga_input_nol = ifelse(is.na(`HARGA KEMARIN`), 0, `HARGA KEMARIN`),
          harga_input_mean = ifelse(is.na(`HARGA KEMARIN`), mean(`HARGA KEMARIN`, na.rm = T), `HARGA KEMARIN`)) %>% 
   View()
 
