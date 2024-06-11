@@ -1,15 +1,21 @@
+# Load libraries
 library(dplyr)
 library(arrow)
+library(rpart)  # library for decision tree modeling
+library(partykit)  # library for visualization of decision tree
+library(forecast)
+library(rpart.plot)
 
+
+# Set working directory
 setwd('C:/Users/ASUS/magang24/')
 
+# Load and preprocess the data
 data1 <- arrow::open_dataset('fara/Hasil Parquet Multithreading Fara/')
 
 data_harga <- data1 %>%
   filter(SATUAN != '') %>%
-  collect()
-
-data_harga <- data_harga %>%
+  collect() %>%
   mutate(
     `NAMA BAHAN POKOK` = gsub('-', '', `NAMA BAHAN POKOK`),
     `HARGA KEMARIN` = gsub('.', '', `HARGA KEMARIN`, fixed = TRUE),
@@ -50,8 +56,50 @@ data_harga <- data_harga %>%
   mutate(Tanggal = as.Date(Tanggal)) %>%
   select(-NO) %>%
   mutate(No = row_number()) %>%
-  select(No, ID_KABKOT, everything()) %>%
-  arrow::write_parquet("harga.parquet")
+  select(No, ID_KABKOT, everything())
 
 View(data_harga)
-collect(data_harga)
+
+# Mengisi NA dengan 0
+data_harga <- data_harga %>%
+  mutate_all(~replace_na(., 0))
+
+# Mengelompokkan data berdasarkan 'NAMA BAHAN POKOK' dan mengisi nilai NA dengan rata-rata
+data_harga <- data_harga %>%
+  group_by("NAMA BAHAN POKOK") %>%
+  mutate("HARGA SEKARANG" = ifelse(is.na("HARGA SEKARANG") | "HARGA SEKARANG" == 0, mean("HARGA SEKARANG", na.rm = TRUE), "HARGA SEKARANG")) %>%
+  ungroup()
+
+# Memilih komoditas tertentu
+y_commodity <- " Beras Premium"
+data_harga <- data_harga %>%
+  filter("NAMA BAHAN POKOK" == y_commodity)
+
+# Membuat model ARIMA
+ari <- auto.arima(data_harga$"HARGA SEKARANG")
+forecast_result <- forecast(ari, h = 10)
+print("Forecasting HARGA SEKARANG untuk 10 periode ke depan:")
+print(forecast_result)
+print(as.data.frame(forecast_result))  
+
+# Membuat model regresi linear
+set.seed(123) 
+training <- data_harga[1:120, ]
+testing <- data_harga[121:140, ]
+print(testing)
+
+regresi1 <- lm("HARGA SEKARANG" ~ "PERUBAHAN (Rp)" + "PERUBAHAN (%)", data = training)
+summary(regresi1)
+
+prediksi_regresi <- predict(regresi1, testing)
+print("Hasil prediksi menggunakan model regresi linear:")
+print(prediksi_regresi)
+
+# Mengisi nilai kosong atau 0 pada 'HARGA SEKARANG' dengan hasil prediksi
+data_harga <- data_harga%>%
+  mutate("HARGA SEKARANG" = ifelse("HARGA SEKARANG" == 0 | is.na("HARGA SEKARANG"), prediksi_regresi, "HARGA SEKARANG"))
+
+# Membuat dan memplot decision tree
+dtree <- ctree("HARGA SEKARANG" ~ "PERUBAHAN (Rp)" + "PERUBAHAN (%)", data = data_harga)
+plot(dtree)
+print(dtree)
