@@ -118,9 +118,12 @@ def fetch_data_for_date(date):
             print(f" Multi Threading Harga Rata-Rata Kabupaten {kabkota_name} di Tingkat Konsumen Tanggal {tanggal}")
             df = pd.DataFrame(data, columns=headers)
             df = transform_data(df)
-            print(df.to_string(index=False))
+            
+            # Filter data for "Daging Ayam Ras" and "Daging Ayam Kampung"
+            df_filtered = df[df['NAMA BAHAN POKOK'].isin([" Daging Ayam Ras", " Daging Ayam Kampung"])]
+            print(df_filtered.to_string(index=False))
             print()  
-            all_data.append(df)  
+            all_data.append(df_filtered)  # Append only the filtered data
         else:
             print(f"Tidak ada data yang ditemukan untuk tanggal {tanggal} dan kabupaten/kota {kabkota_name}")
             print()
@@ -128,9 +131,9 @@ def fetch_data_for_date(date):
     return all_data
 
 def main():
-    start_date = datetime(2024, 6, 1)
-    end_date = datetime(2024, 6, 1)
-    headers = ["Tanggal", "Kabupaten/Kota", "NAMA BAHAN POKOK", "SATUAN", "HARGA KEMARIN", "HARGA SEKARANG", "PERUBAHAN (Rp)", "PERUBAHAN (%)"]
+    start_date = datetime(2024, 5, 12)
+    end_date = datetime(2024, 5, 12)
+    headers = ["Kabupaten/Kota", "NAMA BAHAN POKOK", "HARGA KEMARIN", "HARGA SEKARANG"]
     all_data = []
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -145,17 +148,33 @@ def main():
             except Exception as exc:
                 print(f"Exception occurred while fetching data for date {date}: {exc}")
 
-    if all_data:  # Check if all_data is not empty
+    if all_data:
         final_df = pd.concat(all_data, ignore_index=True)
         
-        # Menambahkan kolom "NO" yang urut sesuai dengan baris
-        final_df.insert(0, "NO", pd.RangeIndex(start=1, stop=len(final_df) + 1, step=1))
+        # Periksa kolom yang ada dalam final_df
+        print("Kolom dalam final_df:", final_df.columns)
 
-        # Memfilter hanya "Daging Ayam Kampung"
-        final_df = final_df[final_df["NAMA BAHAN POKOK"] == " Daging Ayam Ras"]
+        # Buat kolom baru untuk "Ayam Ras" dan "Ayam Kampung"
+        final_df['Ayam Ras'] = final_df.apply(lambda x: x['HARGA SEKARANG'] if x['NAMA BAHAN POKOK'] == " Daging Ayam Ras" else None, axis=1)
+        final_df['Ayam Kampung'] = final_df.apply(lambda x: x['HARGA SEKARANG'] if x['NAMA BAHAN POKOK'] == " Daging Ayam Kampung" else None, axis=1)
 
-        print("Gabungan Data untuk Semua Tanggal yang berisi Daging Ayam Ras:")
-        print(final_df)
+        # Pivot tabel tanpa menggunakan kolom "NO"
+        pivot_df = final_df.pivot_table(
+            index=['Tanggal', 'Kabupaten/Kota'],
+            columns='NAMA BAHAN POKOK',
+            values='HARGA SEKARANG',
+            aggfunc='first'
+        ).reset_index()
+
+        # Rename columns
+        pivot_df.columns = ['Tanggal', 'Kabupaten/Kota', 'Ayam Kampung', 'Ayam Ras']
+
+        # Fill NaNs with 0s
+        pivot_df['Ayam Ras'].fillna(0, inplace=True)
+        pivot_df['Ayam Kampung'].fillna(0, inplace=True)
+
+        print("Gabungan Data untuk Semua Tanggal yang berisi Daging Ayam Ras dan Daging Ayam Kampung:")
+        print(pivot_df)
 
         print("Current Working Directory:", os.getcwd())
 
@@ -167,9 +186,9 @@ def main():
             gs = gc.open('looker latihan')
             worksheet = gs.worksheet('index', 0)
             worksheet.clear('A1')
-            worksheet.set_dataframe(final_df, (1, 1), extend=True, copy_index=False)
+            worksheet.set_dataframe(pivot_df, (1, 1), extend=True, copy_index=False)
             output_file = 'bangkalan_looker.parquet'
-            table = pa.Table.from_pandas(final_df)
+            table = pa.Table.from_pandas(pivot_df)
             pq.write_table(table, output_file)
         except Exception as e:
             print(f"Error reading or processing the Parquet file: {e}")
