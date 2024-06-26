@@ -204,7 +204,7 @@ def main():
         final_df = pd.concat(all_data, ignore_index=True)
         final_df = preprocess_data(final_df)
         final_df = add_forecast(final_df)
-        upload_to_google_sheets(final_df, 'Data harga', 0)
+        upload_to_google_sheets(final_df, 'loker-coba', 0)
         print("Gabungan Data untuk Semua Tanggal dan Kabupaten/Kota dengan Prediksi:")
         print(final_df)
     else:
